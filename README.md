@@ -1,2 +1,2 @@
-# python_2D_game
-A game being developed in python using pygame.
+# Something Survivors
+Something Survivors is a Vampire Survivors like open-source game being developed in Python using pygame.
