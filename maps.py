@@ -1,7 +1,7 @@
 import pygame
 
-TILE_W = 64
-TILE_H = 32
+TILE_W = 128
+TILE_H = 64
 
 TILE_MAP = [
     [0, 0, 0, 0, 0, 0, 0, 0],
@@ -15,44 +15,47 @@ TILE_MAP = [
 ]
 
 TILE_COLORS = {
-    0: (95, 165, 90),    # grass
-    1: (140, 140, 150),  # stone
-    2: (70, 120, 200),   # water
+    0: (95, 165, 90),
+    1: (140, 140, 150),
+    2: (70, 120, 200),
 }
 
 
-def grid_to_screen(col, row, cam_x, cam_y):
-    x = (col - row) * (TILE_W / 2) + cam_x
-    y = (col + row) * (TILE_H / 2) + cam_y
+def grid_to_screen(col, row, cam_x, cam_y, zoom=1.0):
+    tw, th = TILE_W * zoom, TILE_H * zoom
+    x = (col - row) * (tw / 2) + cam_x
+    y = (col + row) * (th / 2) + cam_y
     return x, y
 
 
-def screen_to_grid(px, py, cam_x, cam_y):
-    px -= cam_x + TILE_W // 2
-    py -= cam_y + TILE_H // 2
-    col = (px / (TILE_W / 2) + py / (TILE_H / 2)) / 2
-    row = (py / (TILE_H / 2) - px / (TILE_W / 2)) / 2
+def screen_to_grid(px, py, cam_x, cam_y, zoom=1.0):
+    tw, th = TILE_W * zoom, TILE_H * zoom
+    px -= cam_x + tw / 2
+    py -= cam_y + th / 2
+    col = (px / (tw / 2) + py / (th / 2)) / 2
+    row = (py / (th / 2) - px / (tw / 2)) / 2
     return int(col), int(row)
 
 
-def draw_tile(surface, x, y, color, outline=(25, 25, 30)):
+def draw_tile(surface, x, y, color, zoom=1.0, outline=(25, 25, 30)):
+    tw, th = int(TILE_W * zoom), int(TILE_H * zoom)
     points = [
-        (x + TILE_W // 2, y),
-        (x + TILE_W,      y + TILE_H // 2),
-        (x + TILE_W // 2, y + TILE_H),
-        (x,               y + TILE_H // 2),
+        (x + tw // 2, y),
+        (x + tw,      y + th // 2),
+        (x + tw // 2, y + th),
+        (x,           y + th // 2),
     ]
     pygame.draw.polygon(surface, color, points)
     pygame.draw.polygon(surface, outline, points, 1)
 
 
-def draw_map(surface, cam_x, cam_y, hover, target):
+def draw_map(surface, cam_x, cam_y, hover, target, zoom=1.0):
     for row, line in enumerate(TILE_MAP):
         for col, tile in enumerate(line):
-            x, y = grid_to_screen(col, row, cam_x, cam_y)
+            x, y = grid_to_screen(col, row, cam_x, cam_y, zoom)
             color = TILE_COLORS[tile]
             if (col, row) == target:
                 color = (255, 230, 120)
             elif (col, row) == hover:
                 color = tuple(min(255, c + 40) for c in color)
-            draw_tile(surface, x, y, color)
+            draw_tile(surface, x, y, color, zoom)
